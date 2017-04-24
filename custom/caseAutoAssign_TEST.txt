@@ -1,0 +1,106 @@
+@isTest
+public class CaseAutoAssignSchedule_TEST {
+	static testmethod void Scheduling() {
+        CaseAutoAssignSchedule runner = new CaseAutoAssignSchedule();
+        
+       	User[] users = [select Id from User where IsCaseAutoAssign__c = true];
+        List<Case> cases_to_insert = new List<Case>();
+        for (User user : users) {
+            cases_to_insert.add(new Case(Subject='test for Auto Assign', Status='Новый', RecordTypeId='012D0000000NZzWIAW'));
+        }
+        
+        insert cases_to_insert;
+        
+        System.debug('SOQL queries: ' + Limits.getQueries());
+        
+	   	runner.Process();
+
+                
+        for (User user : users) {
+            List<Case> cases = [select Id, CaseMsgAssignment__c from Case where OwnerId = :user.Id];
+            System.assertEquals(1, cases.size());
+        }
+
+        System.debug('test2 reached');
+        List<Case> cases_list = new List<Case>();
+        for (User user : users) {
+            cases_list.add(new Case(Subject='test2 for Auto Assign', Status='Новый', RecordTypeId='012D0000000NZzWIAW'));
+        }
+        insert cases_list;
+       
+        
+		runner.Process();        
+        for (User user : users) {
+            List<Case> cases2 = [select Id from Case where OwnerId = :user.Id];
+            System.assertEquals(2, cases2.size());
+        }
+        
+        
+    }
+    
+     static testmethod void TestEvents() { 
+        CaseAutoAssignSchedule runner = new CaseAutoAssignSchedule(); 
+         
+        User[] users = [select Id from User where IsCaseAutoAssign__c = true];
+    	Event event_new = new Event(OwnerId=users.get(0).Id, StartDateTime=System.now(), EndDateTime=System.today().addDays(2), Type='Выезд'); 
+        insert event_new;
+        
+        for (User user : users) {
+            Case case_new = new Case(Subject='test for Auto Assign', Status='Новый', RecordTypeId='012D0000000NZzWIAW');
+        	insert case_new;
+        }
+         
+        runner.Process();
+        List<Case> cases2 = [select Id from Case where OwnerId = :users.get(0).Id];
+        System.assertEquals(0, cases2.size());
+        
+        for (User user : users) {
+            Event event_new2 = new Event(OwnerId=user.Id, StartDateTime=System.now(), EndDateTime=System.today().addDays(2), Type='Выезд'); 
+        	insert event_new2;
+        }
+        Case case_new2 = new Case(Subject='test for Auto Assign', Status='Новый', RecordTypeId='012D0000000NZzWIAW');
+        insert case_new2;
+        
+        runner.Process();
+        List<Case> cases3 = [select Id, CaseMsgAssignment__c from Case where OwnerId = '00GD0000001IQhv'];
+        System.assertEquals(1, cases3.size());
+    } 
+    
+    static testmethod void testmethod_two() { 
+       	CaseAutoAssignSchedule runner = new CaseAutoAssignSchedule(); 
+        
+        User[] users = [select Id from User where IsCaseAutoAssign__c = true];
+        List<Case> cases_to_insert = new List<Case>();
+        for (User user : users) {
+            cases_to_insert.add(new Case(Subject='test for Auto Assign', Status='Новый', RecordTypeId='012D0000000NZzWIAW'));
+            cases_to_insert.add(new Case(Subject='test2 for Auto Assign', Status='Новый', RecordTypeId='012D0000000NZzWIAW'));
+        }
+        insert cases_to_insert;     
+        runner.Process();
+        List<Case> cases_one = [select Id, CaseMsgAssignment__c from Case where OwnerId = :users.get(0).Id];
+        System.assertEquals(2, cases_one.size());
+        
+        Case[] cases_three = [select Id, Subject from Case where OwnerId = :users.get(0).Id];
+        for (Case case_three: cases_three) {
+            if (case_three.Subject.contains('test2')) {
+            	case_three.OwnerId = users.get(1).Id;       
+            } else {
+                case_three.OwnerId = users.get(2).Id;   
+            }
+        }
+        update cases_three;
+        runner.Process();
+        List<Case> cases_two = [select Id, CaseMsgAssignment__c from Case where OwnerId = :users.get(0).Id];
+        System.assertEquals(0, cases_two.size());
+
+        List<Case> cases_list2 = new List<Case>();
+        cases_list2.add(new Case(Subject='test3 for Auto Assign', Status='Новый', RecordTypeId='012D0000000NZzWIAW'));
+        cases_list2.add(new Case(Subject='test3 for Auto Assign', Status='Новый', RecordTypeId='012D0000000NZzWIAW'));
+        insert cases_list2;
+        
+        runner.Process();
+        List<Case> cases3 = [select Id, CaseMsgAssignment__c from Case where OwnerId = :users.get(0).Id];
+        System.assertEquals(2, cases3.size());
+        
+    } 
+}

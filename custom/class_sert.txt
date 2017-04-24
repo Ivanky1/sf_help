@@ -1,0 +1,34 @@
+public static testmethod void TestAccountAssignment() { 
+       Account account = new Account(Name='test for ContactCertificationKbChecked_TEST', BusinessPartnershipType__c='Потенциальный бизнес партнер');
+       insert account;
+       
+       Contact contact = new Contact(LastName='test for ContactCertificationKbChecked_TEST', Email='Contact_test@example.com', IsActive__c=true, 
+                                     AccountId=account.Id);
+       insert contact;
+       
+       Contact_certification__c cert = MyNewCertification(contact, 'Партнерская', 'for test');
+       insert cert;
+       cert.Status__c = 'В процессе';
+       cert.Substatus__c = 'Проведено обучение/Ожидаем на тестирование';
+       cert.Validity__c = 'valid';
+       update cert;
+       
+       contact = [select Id, AddAccessKBArm__c from Contact where Id = :contact.Id];
+       System.assertEquals(contact.AddAccessKBArm__c, 'Автоматически');
+       
+       cert.Validity__c = 'invalid';
+       update cert;
+       contact = [select Id, AddAccessKBArm__c from Contact where Id = :contact.Id];
+       System.assertEquals(contact.AddAccessKBArm__c, 'Не выбрано');
+       
+    }
+    
+    private static Contact_certification__c MyNewCertification(Contact contact, String program, String subprogram) {
+        return new Contact_certification__c(
+            Contact__c=contact.id,
+            Certification_program__c=program,
+            C_S_Prg__c=subprogram,
+            Status__c='Новый',
+            ResponsibleForPayment__c=UserInfo.getUserId()
+        );
+    } 

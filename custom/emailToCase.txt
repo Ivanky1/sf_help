@@ -1,0 +1,43 @@
+###############Trigger################
+Map<Id, String> messagesObj = new Map<Id, String>();
+    for (EmailMessage message : Trigger.new) {
+        messagesObj.put(message.ParentId, message.FromAddress);
+    }
+    Map<Id, Case> cases = new Map<Id, Case>();
+    List<Contact> contacts = [SELECT Id FROM Contact where Email in : messagesObj.values()];
+    if (contacts.isEmpty()) {
+        cases = new Map<Id, Case>([SELECT Id, Status, OwnerId FROM Case WHERE Id IN :messagesObj.keySet() and Origin = 'Ёл.почта' and Status = 'ќткрытый' ]);
+        if (!cases.isEmpty()) {
+            for(Id key : cases.keySet()) {
+                cases.get(key).Status = '«акрытый';
+                cases.get(key).OwnerId = '00GD0000004dpuf';
+                //cases.get(key).CaseUndeliverableEmail__c = messagesObj.get(key);
+            }
+            update cases.values();
+        }
+    }
+	
+###############Class################################
+public static testmethod void Test() {
+        Case my_case = new Case(Status='ќткрытый', Origin='Ёл.почта');
+        insert my_case;
+        EmailMessage message = new EmailMessage(FromAddress='nonexistent@example.com', ParentId=my_case.Id);
+        insert message;
+        list<Case> case_new = [Select Id, CaseUndeliverableEmail__c from Case where Id = :message.ParentId and CaseUndeliverableEmail__c != null];
+        system.assertEquals(case_new.size(), 1);
+        system.assertEquals(case_new.get(0).CaseUndeliverableEmail__c, 'nonexistent@example.com');
+
+        Contact contact_new = new Contact(Email='isset@example.com', LastName='Test');
+        insert contact_new;
+        Case my_case2 = new Case(Status='ќткрытый', Origin='Ёл.почта');
+        insert my_case2;
+        EmailMessage message2 = new EmailMessage(FromAddress='isset@example.com', ParentId=my_case2.Id);
+        insert message2;
+        list<Case> case_new2 = [Select Id, CaseUndeliverableEmail__c from Case where Id = :message2.ParentId and CaseUndeliverableEmail__c != null];
+        system.assertEquals(case_new2.size(), 0);
+    }
+	
+	
+	005D00000028hcsIAA
+	
+	00GD0000001IQhvMAG

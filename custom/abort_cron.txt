@@ -1,0 +1,11 @@
+// loop through jobs located by name that we need to abort
+for(CronTrigger ct : [SELECT Id, CronJobDetail.Name, CronJobDetail.JobType 
+                        FROM CronTrigger 
+                       WHERE CronJobDetail.Name like 'Work Order%']){
+ 
+    // abort the job, try/catch because the job might not exist 
+    // if it's being aborted manually or from another execution
+    try{
+        system.abortJob(ct.id);
+    } catch (exception e) {}
+}

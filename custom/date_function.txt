@@ -1,0 +1,1 @@
+DAY_ONLY(CreatedDate) > 2005-10-08

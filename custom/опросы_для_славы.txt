@@ -1,0 +1,22 @@
+List<SG__c>quizes =  [select Id, User__r.Email, Case_owner__c from SG__c 
+                     	where Case_owner__c = null
+                     ];
+List<String> emails = new List<String>();
+
+for (SG__c quiz : quizes) {
+    emails.add(quiz.User__r.Email);
+}
+
+List<Contact> cnts =  [select Id, Email from Contact 
+                     	where email in :emails
+                     ];
+Map<String, String>cnts_email = new Map<String, String>();
+for (Contact cnt : cnts) {
+    cnts_email.put(cnt.Email, cnt.Id);
+}
+
+for (SG__c quiz : quizes) {
+    quiz.Case_owner__c = cnts_email.get(quiz.User__r.Email);
+}
+
+update quizes;

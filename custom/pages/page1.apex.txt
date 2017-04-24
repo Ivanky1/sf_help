@@ -1,0 +1,41 @@
+<apex:pageBlockSection rendered="{!render_bool}">
+             <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Можно решить на У1" for="Could Be Resolved In T1"/>
+                <apex:inputCheckbox value="{!resolved_to_t1}" selected="false"  />
+             </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            
+            <apex:pageBlockSection rendered="{!render_bool}">
+             <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Можно решить на У1- причина" for="Could Be Resolved Reason In T1"/>
+                <apex:selectList id="reason_option" value="{!resolved_to_t1_reason}" size="1" title="Можно решить на У1- причина">
+                    <apex:selectoption itemLabel="Не выбрано" itemValue=""></apex:selectoption>
+                    <apex:selectoption itemLabel="Инструкция из БЗ-статьи применена некорректно" itemValue="Инструкция из БЗ-статьи применена некорректно"></apex:selectoption>
+                    <apex:selectoption itemLabel="Неверно идентифицирована проблема" itemValue="Неверно идентифицирована проблема"></apex:selectoption>
+                    <apex:selectoption itemLabel="Низкое качество знаний продукта" itemValue="Низкое качество знаний продукта"></apex:selectoption>
+                    <apex:selectoption itemLabel="Другое" itemValue="Другое"></apex:selectoption>
+                </apex:selectList>
+             </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            
+            <apex:pageBlockSection rendered="{!render_bool}">
+             <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Можно решить на У1 - статья БЗ " for="Could Be Resolved Reason In T1 Article BZ"/>
+                <apex:inputText id="resolved_to_t1_bz" value="{!resolved_to_t1_bz}"/>
+             </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+ 
+            
+            <Item></apex:pageBlockSectionItem>apex:pageBlockSection >
+             <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Качество эскалации" for="Escalation Quality"/>
+                <apex:selectList id="reason_option" value="{!escalation_quality}" size="1" title="Качество эскалации">
+                    <apex:selectoption itemLabel="Не выбрано" itemValue=""></apex:selectoption>
+                    <apex:selectoption itemLabel="5 = отлично" itemValue="5 = отлично"></apex:selectoption>
+                    <apex:selectoption itemLabel="4 = хорошо" itemValue="4 = хорошо"></apex:selectoption>
+                    <apex:selectoption itemLabel="3 = нормально" itemValue="3 = нормально"></apex:selectoption>
+                    <apex:selectoption itemLabel="2 = плохо" itemValue="2 = плохо"></apex:selectoption>
+                    <apex:selectoption itemLabel="1 = очень плохо" itemValue="1 = очень плохо"></apex:selectoption>                                      
+                </apex:selectList>
+             </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>

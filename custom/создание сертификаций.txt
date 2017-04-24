@@ -1,0 +1,33 @@
+list<Contact_certification__c> serts = new List<Contact_certification__c>();
+list<String> emails = new List<String>{'Pavel.Belinsky@infowatch.com','Andrey.Zarubin@infowatch.com','Yury.Tuzov@infowatch.com',
+'Alexey.Titov@infowatch.com','Dmitry.Tarasov@infowatch.com','Alexey.Sviridov@infowatch.com','Artem.Shvyryaev@infowatch.com',
+'Sergey.Shalin@infowatch.com','Yury.Savilov@infowatch.com','Mergen.Sarangov@infowatch.com','Dmitry.Sarakeev@infowatch.com',
+'Shamil.Saitov@infowatch.com','Igor.Pyatkin@infowatch.com','Andrey.Pozdnyakov@infowatch.com','Vyacheslav.Posokhov@infowatch.com',
+'Vladimir.Popov@infowatch.com','Ivan.Pavlov@infowatch.com','Oleg.Pastukhov@infowatch.com','Irina.Nosova@infowatch.com',
+'Mikhail.Nikolaev@infowatch.com','Maksim.Narodovich@infowatch.com','Vladislav.Mukhin@infowatch.com',
+'Roman.Mantsurov@infowatch.com','Roman.Lim@infowatch.com','Sergey.Kuznetsov@infowatch.com','Denis.Kuznetsov@infowatch.com',
+'Irina.Gubanova@infowatch.com','Timur.Galiulin@infowatch.com','Pavel.Frantsuzov@infowatch.com','Anton.Esikov@infowatch.com',
+'Alexey.Eremeev@infowatch.com','Igor.Elpin@infowatch.com','Andrey.Eli@infowatch.com','Nikolay.Dmitriev@infowatch.com','Mikhail.Dmitriev@infowatch.com',
+'Roman.Bezbabnov@infowatch.com','Roman.Barsukov@infowatch.com','Maria.Bardakova@infowatch.com','Stepan.Bakalyas@infowatch.com','Yulia.Alekseeva@infowatch.com',
+'Evgeny.Aizatullin@infowatch.com'};
+for (String email : emails) {
+	List<Contact> cnt = [Select Id from Contact where Email = :email];
+	if (!cnt.isEmpty()) {
+		Contact_certification__c sert = new Contact_certification__c(
+		Contact__c=cnt.get(0).Id, 
+		Certification_Owner__c='003D000000kG9Hz',
+		Account__c='001D000000hDuoI',
+		Status__c='Новый',
+		PrimaryTrainingTrainer__c='003D000000kG9Hz',
+		Certification_Program__c='Корпоративная',
+		C_S_Prg__c='Специалист внедрения и поддержки Traffic monitor For Diasoft',
+		TrainingStartDate__c= Date.newInstance(2016, 05, 31),
+		TrainingEndDate__c=Date.newInstance(2016, 05, 31)
+		);
+		serts.add(sert);
+	}
+}
+if (!serts.isEmpty()) {
+	insert serts;
+}
+

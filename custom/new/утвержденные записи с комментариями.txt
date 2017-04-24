@@ -1,0 +1,22 @@
+Map<Id, Asset__c> ass_map = new Map<Id, Asset__c>([select Id from Asset__c where ProductAssetOwner__c='005D0000004He3M']);
+List<ProcessInstance> approvals = 
+    [select Id, TargetObjectId, status, 
+     (SELECT Id, StepStatus, Comments FROM Steps)
+ from ProcessInstance where TargetObjectId in :ass_map.keySet()];
+List<String> ids = new List<String>();
+for (ProcessInstance approval : approvals) {
+    for (ProcessInstanceStep step : approval.Steps) {
+        if (step.Comments != null) {
+			//system.debug(step.Comments);
+            //system.debug(approval.TargetObjectId);
+            ids.add(approval.TargetObjectId);
+            break;
+        }        
+    }
+}
+
+Account acc = [select Id, Fullname__c from Account where Id = '001D000001piG7A'];
+acc.Fullname__c = String.join(ids, '\n');
+update acc;
+
+

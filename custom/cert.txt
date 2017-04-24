@@ -1,0 +1,11 @@
+List<Contact_certification__c> certs = [
+    select Id from Contact_certification__c where 
+    Status__c='Закрытый' and Substatus__c='Сертифицирован'                    
+    and DAY_ONLY(lastModifiedDate) < 2016-09-05
+    and (not Account__r.Name like '%инфовотч%')
+    and Contact__r.Knowledge_Base_Access__c = false
+    and Validity__c = 'valid'
+    limit 30
+                     ];
+
+update certs;

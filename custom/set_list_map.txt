@@ -1,0 +1,25 @@
+ List<Case> cases = Trigger.new;
+    Map<Id,Case> cases_updated =  new Map<Id,Case>{};
+    Boolean email_case_isset = false;
+    
+    Id trash_can_id = [select Id from Group where Name = 'Support - Trash Can'].Id;
+    
+    Map<String, List<Contact>> contacts_by_email = new Map<String, List<Contact>>();
+    Set<String> supplied_emails = new Set<String>();
+    
+    for (Case case_new : cases) {
+        if (case_new.SuppliedEmail != null) {
+          supplied_emails.add(case_new.SuppliedEmail);
+        }
+    }
+    
+    List<Contact> contacts_with_emails_from_new_cases = [select Id, Email from Contact where Email in :supplied_emails];
+    
+    for (Contact contact : contacts_with_emails_from_new_cases) {
+        if (!contacts_by_email.containsKey(contact.Email)) {
+            contacts_by_email.put(contact.Email, new List<Contact>());
+        }
+        
+        contacts_by_email.get(contact.Email).add(contact);
+    }
+	

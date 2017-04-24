@@ -1,0 +1,21 @@
+List<Asset_installation__c> remotes  = 
+    [select RemoteAccessPermission__c, Account__c from Asset_installation__c ];
+
+Map<Id, Account> accounts = new Map<Id, Account>();
+
+for (Asset_installation__c remote : remotes) {
+    Account acc = new Account(Id=remote.Account__c);
+    if (remote.RemoteAccessPermission__c == null) {
+        acc.RemoteAccessPermission__c = 'Неизвестно';
+    } else {
+    	acc.RemoteAccessPermission__c = remote.RemoteAccessPermission__c;    
+    }
+    accounts.put(acc.Id, acc);
+}
+
+update accounts.values();
+
+
+
+// Trigger.Old value
+Presale__c oldPresale = Trigger.oldMap.get(presale.Id);

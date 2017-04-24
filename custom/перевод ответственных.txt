@@ -1,0 +1,19 @@
+List<String> accs_list =  new List<String>{
+'Среднерусский банк Сбербанка России',
+'Сбербанк России, ПАО, Белгород',
+'Сбербанк России, ПАО, Тамбов (Тамбовское отделение №8594)',
+'Сбербанк России',
+'Костромской УЦ ФПС, ФГУП (МЧС)'
+};
+    List<Account> accs = [select Id, OwnerId from Account where Name in :accs_list];
+    for (Account acc : accs) {
+        acc.OwnerId = '005D00000054zwP';
+		
+    }
+	update accs;
+List<COpportunity__c> projects = [select Id, OwnerId from COpportunity__c where Account__r.Name in :accs_list];
+    for (COpportunity__c project : projects) {
+        project.OwnerId = '005D00000054zwP';
+		
+    }
+	update projects;

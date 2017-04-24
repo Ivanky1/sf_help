@@ -1,0 +1,6 @@
+try {
+	insert wrong_top_budget;
+	System.assert(false, 'Top-level budget check is not working');
+} catch (Exception error) {
+	System.debug('Top-level budget check is OK');
+}

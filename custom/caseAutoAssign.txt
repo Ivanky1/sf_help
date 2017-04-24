@@ -1,0 +1,84 @@
+global class CaseAutoAssignSchedule implements Schedulable {
+    public static final String name = 'Case Auto Assign';
+    
+    public static Id Schedule() {
+        return Common.RescheduleInFiveMinutes(null, name, new CaseAutoAssignSchedule());
+    }
+    
+    global void execute(SchedulableContext context) {
+        Process();
+        Common.RescheduleInFiveMinutes(context, name, this);
+    }
+    
+    public void Process() {
+        Map<Id, Integer> owner_id_number_of_cases = new Map<Id, Integer>();
+
+        // Тип приходится хардкодить, потому что формула не может использовать поле "Тип" объекта "Действие". Да-да.
+        List<Event> events = [select OwnerId from Event where StartDateTime <= :System.now() and EndDateTime > :System.now() and Type in ('Выезд', 'Отпуск', 'Отсутствие на рабочем месте')];
+        list<Id>uids = new List<Id>();
+        for (Event event : events) {
+            uids.add(event.OwnerId);
+        }
+        
+        List<User> users = [
+             select Id from User where IsCaseAutoAssign__c = true and 
+                Id not in :uids
+        ];     
+    
+        for (User user : users) {
+            owner_id_number_of_cases.put(user.Id, 0);
+        }
+        // Если пользователи не доступны помещаем в очередь
+        if (owner_id_number_of_cases.isEmpty()) {
+            return; 
+        }
+            
+        for (AggregateResult ar : [
+            select Count(Id) Total, OwnerId
+            from Case
+            where IsCaseAutoAssign__c = true and OwnerId not in :uids
+            group by OwnerId
+        ]) {
+            Id key = (Id)ar.get('OwnerId');
+            Integer total = (Integer)ar.get('Total') ;
+            owner_id_number_of_cases.put(key, total);
+        }
+        
+        Id owner_id = null;   
+        List<Case> cases = [
+           select Id, OwnerId, CaseMsgAssignment__c from Case
+           where OwnerId = '00GD0000001IQhv' and Status = 'Новый' and RecordTypeId='012D0000000NZzWIAW'
+        ];
+            
+        for (Case case_new : cases) {
+            Integer min = 99999999;
+            for (Id key : owner_id_number_of_cases.keySet()) {
+                if (owner_id_number_of_cases.get(key) < min) {
+                    min = owner_id_number_of_cases.get(key);
+                    owner_id = key;
+                }
+            }
+            
+            if (owner_id != null) {
+                owner_id_number_of_cases.put(owner_id, ++min);
+                case_new.OwnerId = owner_id;
+                //System.debug('Setting case owner to user ' + owner_id);
+                String msg_custom = '';
+                for (Id key_two : owner_id_number_of_cases.keySet()) {
+                    if (key_two != owner_id) {
+                        msg_custom += string.valueof(key_two) +' - '+ string.valueof(owner_id_number_of_cases.get(key_two)) +';' ;
+                    }
+                }
+                case_new.CaseMsgAssignment__c = 'Обращение назначалось на - '+ owner_id +'-'+min+' так как на '+ msg_custom;
+                System.debug('Setting case owner to user ' + case_new.CaseMsgAssignment__c);
+            }
+            
+        }
+        
+        System.debug('Before updating: ' + cases);
+        
+        update cases;
+        
+        System.debug('After updating: ' + [select Id, OwnerId from Case]);
+    }
+}

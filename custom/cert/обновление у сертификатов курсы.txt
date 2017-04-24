@@ -1,0 +1,65 @@
+Map<String, String> arr_map = new Map<String, String> {
+'Специалист внедрения и поддержки InfoWatch Traffic Monitor 4' => 'Специалист внедрения и технической поддержки InfoWatch Traffic Monitor 4',
+'Специалист внедрения и поддержки InfoWatch Traffic Monitor 5' => 'Специалист внедрения и технической поддержки InfoWatch Traffic Monitor 5',
+'InfoWatch Traffic Monitor 4 Supporting and Implementing specialist' => 'InfoWatch Traffic Monitor 4 Support and Implementation specialist',
+'InfoWatch Traffic Monitor 5 Supporting and Implementing specialist' => 'InfoWatch Traffic Monitor 5 Support and Implementation specialist',
+'Специалист внедрения и поддержки InfoWatch Traffic Monitor Standard 5' => 'Специалист внедрения и поддержки InfoWatch Traffic Monitor Standard 5',
+'Специалист внедрения и поддержки InfoWatch Traffic Monitor Standard 4' => 'Специалист внедрения и поддержки InfoWatch Traffic Monitor Standard 4',
+'Руководитель проектов внедрения InfoWatch Traffic Monitor' => 'Руководитель проектов внедрения InfoWatch Traffic Monitor',
+'Специалист по сопровождению и администрированию InfoWatch Traffic Monitor 4' => 'Специалист по сопровождению и администрированию IWTME4',
+'Администратор InfoWatch EndPoint Security' => 'Администратор InfoWatch EndPoint Security',
+'Администратор системы Kribrum' => 'Администратор системы Kribrum',
+'Администратор InfoWatch Targeted Attacks Detector' => 'Администратор InfoWatch Targeted Attacks Detector',
+'Офицер безопасности InfoWatch Traffic Monitor 4' => 'Офицер Безопасности InfoWatch Traffic Monitor 4',
+'InfoWatch Traffic Monitor 4 Security Officer' => 'InfoWatch Traffic Monitor 4 Security Officer',
+'Офицер безопасности InfoWatch Traffic Monitor 5' => 'Офицер Безопасности InfoWatch Traffic Monitor 5',
+'InfoWatch Traffic Monitor 5 Security Officer' => 'InfoWatch Traffic Monitor 5 Security Officer',
+'Сертифицированный пользователь Appercut' => 'Сертифицированный пользователь Appercut',
+'Специалист по противодействию внутренним угрозам ИБ (ВУЗы)' => 'Специалист по противодействию внутренним угрозам ИБ',
+'Офицер безопасности InfoWatch Traffic Monitor 6' => 'Офицер Безопасности InfoWatch Traffic Monitor 6',
+'Специалист внедрения и поддержки InfoWatch Traffic Monitor 6' => 'Специалист внедрения и технической поддержки InfoWatch Traffic Monitor 6',
+'Infowatch Traffic Monitor 6 Support and implementing specialist' => 'Infowatch Traffic Monitor 6 Support and Implementation Specialist',
+'Специалист InfoWatch Attack Killer' => 'Администратор InfoWatch Attack Killer',
+'Специалист внедрения и поддержки InfoWatch Attack Killer' => 'Специалист внедрения и поддержки InfoWatch Attack Killer',
+'Офицер InfoWatch Attack Killer' => 'Офицер безопасности InfoWatch Attack Killer'
+
+};
+    
+    System.debug('first');
+List<CourseTraining__c> courses = [select Id, Name from CourseTraining__c ];
+Map<String, String> courses_map = new Map<String, String>();
+for (CourseTraining__c course : courses) {
+    //if (arr_map.containsKey(course.Name)) { 
+    	courses_map.put(course.Name, course.Id);
+    //}
+    
+}
+
+System.debug('second');
+
+List<Contact_certification__c> certs = 
+    [select Id, C_S_Prg_del__c from Contact_certification__c where C_S_Prg_del__c in :arr_map.keySet() and Course__c = null limit 1000];
+system.debug('AAAA '+courses_map);
+
+for (Contact_certification__c cert : certs) {
+    if (arr_map.containsKey(cert.C_S_Prg_del__c)) {
+    	system.debug('AAAA '+arr_map.get(cert.C_S_Prg_del__c));  
+        String key = arr_map.get(cert.C_S_Prg_del__c).trim();
+        system.debug('BBBB '+key);
+        system.debug('CCCC '+courses_map);
+        system.debug('DDDD '+courses_map.get(key));
+        
+        
+    } 
+
+    cert.Course__c = courses_map.get(arr_map.get(cert.C_S_Prg_del__c)); 
+    if (arr_map.containsKey(cert.C_S_Prg_del__c) &&
+        courses_map.containsKey(arr_map.get(cert.C_S_Prg_del__c))) {
+    	cert.Course__c = courses_map.get(arr_map.get(cert.C_S_Prg_del__c));  
+        system.debug('AAAA '+certs);
+    } 
+}
+//System.debug('third');
+//update certs;
+System.debug('fourth'+ certs);
+

@@ -1,0 +1,60 @@
+List<Id> ids = new List<Id>{
+    	'005D00000029cbk', 
+        '005D0000001TAeK', 
+        '005D0000008gB5T', 
+        '005D00000028vuv', 
+        '005D00000029YGd',
+        '005D00000028zLB',
+        '005D00000038zCU',
+        '005D00000029YGr',
+        '005D0000003AOWG',
+        '005D00000036RUw'
+};
+Map<Id, User> users_map = new Map<Id, User>(
+    [
+        select Id from User where IsActive = true 
+        and ( ManagerId in :ids or Id in :ids )
+    ]
+);
+
+List<Contact> cnts = [select Id, OwnerId, Account.OwnerId from Contact 
+                      where Account.OwnerId in :users_map.keySet()
+                      and IsActive__c = true
+                     ];
+system.debug('cnts '+cnts);
+List<String> cnts_search = new List<String>();
+for (Contact cnt : cnts) {
+    if (cnt.OwnerId != cnt.Account.OwnerId ) {
+        cnts_search.add(cnt.Id);
+        //system.debug('AAAAAAAAAAAAAAAA '+cnt);
+    }
+}
+//update cnts;
+Account acc_in = [select Id, FullName__c from Account where Id ='001D000001piG7A'];
+acc_in.FullName__c = String.join(cnts_search, ';');
+update acc_in;
+//system.debug('cnts '+cnts_search.size());
+
+
+
+
+/*
+Account acc_in = [select Id, FullName__c from Account where Id ='001D000001piG7A'];
+List<String> ids = acc_in.FullName__c.split(';');
+
+List<Contact> cnts = [select Id, OwnerId, Account.OwnerId from Contact 
+                      where Id in :ids and TestUpdate__c = false
+                     ];
+
+
+for (Contact cnt : cnts) {
+    if (cnt.OwnerId != cnt.Account.OwnerId ) {
+        cnt.OwnerId = cnt.Account.OwnerId;
+        cnt.TestUpdate__c = true;
+       // cnts_update.add(cnt);
+        //system.debug('AAAAAAAAAAAAAAAA '+cnt);
+    }
+}
+
+update cnts; 
+*/

@@ -1,0 +1,8 @@
+Pattern p = Pattern.compile('(\\d+)h (\\d+)m');
+Matcher pm = p.matcher( yourString );
+
+if( pm.matches() )
+{
+    hours = pm.group(1);
+    minutes = pm.group(2);
+}

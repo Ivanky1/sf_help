@@ -1,0 +1,17 @@
+List<String> names = new List<String>(); 
+for (AggregateResult ar : [
+            select Name from Account group by Name having count(Name)>1
+        ]) {
+            String str = (String)ar.get('Name');
+            names.add(str);
+        }
+
+List<Account> accs = [select Id, Owner.Name, Name from Account where name in :names order by Name];
+string info = '<table><tr><td>Название</td><td>Ответственный</td><td>Ссылка</td></tr>';
+for (Account acc : accs) {
+    info += '<tr><td>'+acc.Name+'</td><td>'+acc.Owner.Name+'</td><td>https://eu1.salesforce.com/'+acc.Id+'</td></tr>';
+}
+info += '</table>';
+
+COpportunity__c project = new COpportunity__c(Id='a0AD000000ovyRF', TestDoubleProject__c=info);
+update project;
